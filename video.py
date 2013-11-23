@@ -55,7 +55,8 @@ class MainWindow(QMainWindow):
 def main():
     #url = "pervyj-mstitel_captain-america-the-first-avenger-2011-bdrip-1080p-ot-youtracker-licenzija"
     #url = "virtuoznost_virtuosity-1995-hdrip-ot-rulya74"
-    url = "chelovek-bez-proshlogo_mies-vailla-menneisyytt&auml"
+    url = "http://rutor.org/torrent/318589/kolonija_dvojnaja-komanda_double-team-1997-bdrip-by-msltel-p-p2-a"
+    #url = "chelovek-bez-proshlogo_mies-vailla-menneisyytt&auml"
     #url = "seksualnye-hroniki-francuzskoj-semi_chroniques-sexuelles-dune-famille-daujourdhui-2012-bdrip-1080p-uncut"
     
     app = QApplication(sys.argv)

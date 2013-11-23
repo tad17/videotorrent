@@ -101,7 +101,8 @@ class Torrent():
     def get_source(self, url):
         # ========== получение данных =================
         self.url = url
-        page = open(self.url).read().decode('utf-8')
+        #page = open(self.url).read().decode('utf-8')
+        page = urllib.urlopen(url).read().decode('utf-8')
         self.xmldata = html.document_fromstring(page)
         
         self.get_title()
