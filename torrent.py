@@ -102,7 +102,9 @@ class Torrent():
         # ========== получение данных =================
         self.url = url
         #page = open(self.url).read().decode('utf-8')
+        print "read %s" % url
         page = urllib.urlopen(url).read().decode('utf-8')
+        print "done"
         self.xmldata = html.document_fromstring(page)
         
         self.get_title()
