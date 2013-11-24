@@ -189,6 +189,7 @@ class Content(QWidget):
             self.imageLabel.setPixmap(QPixmap.fromImage(self.Image))
             
     def save_db(self):
+        "пока картинки не сохраняются ((("
         query = QSqlQuery()
         query.prepare("INSERT INTO video"
                       "(title, original, img, torrent, country, genre, year, duration, "
