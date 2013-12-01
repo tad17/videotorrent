@@ -15,33 +15,33 @@ class Info():
         self.content = {
             "title": u"<b>Название фильма<b>",
             "original": u"(оригинальное название)",}
-        
+
     def label(self, name):
         value = self.content[name]
         label = QLabel(value)
         label.setAlignment(Qt.AlignCenter)
         return label
-    
-    
+
+
 class Item(QWidget):
-    
+
     '''одно значение'''
     def __init__(self, parent, label, value=None):
         QWidget.__init__(self, parent)
         self.lb = QLabel(label)
         self.ed = QLineEdit(value)
-        
+
     def add(self, grid, nom):
         grid.addWidget(self.lb, nom, 0)
         grid.addWidget(self.ed, nom, 1)
-        
+
     def setText(self, text):
         self.ed.setText(text)
         self.ed.setCursorPosition(0)
-        
+
     def clear(self):
         self.ed.clear()
-        
+
 class URL(QHBoxLayout):
     def __init__(self):
         QHBoxLayout.__init__(self)
@@ -50,24 +50,24 @@ class URL(QHBoxLayout):
         self.readButton = QPushButton(u"Считать")
         self.saveButton = QPushButton(u"Сохранить")
         self.saveButton.setEnabled(False)
-        
+
         # размещаем
         self.addWidget(label)
         self.addWidget(self.edit)
         self.addWidget(self.readButton)
         self.addWidget(self.saveButton)
-    
+
 
 class Content(QWidget):
     '''Детальная информация по фильму'''
-    
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        
+
         info = Info()
         self.Title = info.label("title")
         self.Original = info.label("original")
-        
+
         self.iCountry = Item(self, u"Страна")
         self.iYear = Item(self, u"Год выпуска:")
         self.iGenre = Item(self, u"Жанр:")
@@ -80,7 +80,7 @@ class Content(QWidget):
         self.iQuantity = Item(self, u"Качество:")
         self.iVideo = Item(self, u"Видео:")
         self.iAudio = Item(self, u"Аудио:")
-      
+
         layout = QVBoxLayout()
         layout.addWidget(self.Title)
         layout.addWidget(self.Original)
@@ -89,7 +89,7 @@ class Content(QWidget):
 
         # для детальной информации и картинки
         hlayout = QHBoxLayout()
-        
+
         # для детальной информации
         grid = QGridLayout()
         self.iCountry.add(grid, 0)
@@ -104,36 +104,36 @@ class Content(QWidget):
         self.iQuantity.add(grid, 9)
         self.iVideo.add(grid, 10)
         self.iAudio.add(grid, 11)
-        
+
         self.Description = QTextEdit()
         grid.addWidget(self.Description, 12, 0, 1, 2)
-        
+
         self.Image = QImage()
         self.imageLabel = QLabel()
         self.imageLabel.setMinimumSize(200, 200)
-        
+
         hlayout.addLayout(grid)
         hlayout.addWidget(self.imageLabel)
-        
+
         layout.addLayout(hlayout)
         hline = QLabel("<hr>")
         layout.addWidget(hline)
-        
+
         # url
         self.url = URL()
         layout.addLayout(self.url)
-        
+
         # кнопки
         #buttonbox = QDialogButtonBox(QDialogButtonBox.Save |
-                                     #QDialogButtonBox.Cancel)
+                                        #QDialogButtonBox.Cancel)
         #buttonbox.button(QDialogButtonBox.Save).setDefault(True)
         #layout.addWidget(buttonbox)
-        
+
         self.setLayout(layout)
-        
+
     def setDB(self, db):
         self.db = db
-        
+
         query = QSqlQuery()
         sql = '''
         SELECT
@@ -165,7 +165,7 @@ class Content(QWidget):
             video = unicode(query.value(14).toString())
             audio = unicode(query.value(15).toString())
             img = unicode(query.value(16).toString())
-            
+
             self.Title.setText("<b>%s</b>" % title)
             self.Original.setText(original)
             self.iCountry.setText(country)
@@ -181,13 +181,13 @@ class Content(QWidget):
             self.iQuantity.setText(quantity)
             self.iVideo.setText(video)
             self.iAudio.setText(audio)
-            
+
             self.Image = QImage("images/%s" % img)
             width = 400
             height = 600
             self.Image.scaled(width, height, Qt.KeepAspectRatio)
             self.imageLabel.setPixmap(QPixmap.fromImage(self.Image))
-            
+
     def save_db(self):
         "пока картинки не сохраняются ((("
         query = QSqlQuery()
@@ -218,7 +218,7 @@ class Content(QWidget):
         query.bindValue(":audio", QVariant(self.iAudio.ed.text()))
         query.exec_()
 
-        
+
     def clear(self):
         self.Title.clear()
         self.Original.clear()
@@ -235,7 +235,7 @@ class Content(QWidget):
         self.iQuantity.clear()
         self.iVideo.clear()
         self.iAudio.clear()
-        
+
     def set_torrent(self, torrent):
         self.Title.setText("<b>%s</b>" % QString(torrent["title"]))
         self.Original.setText(QString(torrent["original"]))
@@ -252,18 +252,17 @@ class Content(QWidget):
         self.iQuantity.setText(torrent["quantity"])
         self.iVideo.setText(torrent["video"])
         self.iAudio.setText(torrent["audio"])
-        
+
         self.Image = QImage("./images/%s" % torrent["img"])
         width = 800
         height = 600
         self.Image.scaled(width, height, Qt.KeepAspectRatio)
         self.imageLabel.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)
         self.imageLabel.setPixmap(QPixmap.fromImage(self.Image))
-    
+
     def update(self, url):
         # сначала очистим содержимое
         self.clear()
         torrent = Torrent()
         torrent.get_source(url)
         self.set_torrent(torrent.info)
-    
