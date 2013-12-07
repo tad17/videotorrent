@@ -65,7 +65,6 @@ class Content(QWidget):
 
     def __init__(self, parent=None, db=None):
         QWidget.__init__(self, parent)
-        print "read from db"
 
         self.db = db
         info = Info()
@@ -136,6 +135,7 @@ class Content(QWidget):
         self.setLayout(layout)
 
     def read_from_db(self):
+        print "read from db"
 
         query = QSqlQuery()
         sql = '''
@@ -231,9 +231,10 @@ class Content(QWidget):
     #----------------------------------------------------------------------
     def  write_torrent(self):
         """записывает торрент на закачку"""
-        ftp = ftplib.FTP("192.168.1.40")
-        ftp.connect("itman", "X753951x")
         torrent_file = open("torrent/%s" % self.torrent, "rb")
+        print "записываю торрент-файл %s" % self.torrent
+        ftp = ftplib.FTP("192.168.1.40")
+        ftp.login("itman", "X753951x")
         ftp.storbinary("STOR /mnt/torrent/watch/[rutor.org]%s.torrent" % self.torrent, torrent_file)
         torrent_file.close()
         ftp.close()
@@ -288,6 +289,7 @@ class Content(QWidget):
 
     def update(self, url):
         # сначала очистим содержимое
+        print "обновление содержимого"
         self.clear()
         torrent = Torrent()
         torrent.get_source(url)

@@ -33,21 +33,24 @@ class MainWindow(QMainWindow):
         self.content = Content(self, db)
         self.content.read_from_db()
         self.setCentralWidget(self.content)
+        # настройка сигналов
+        self.connect(self.content.url.readButton, SIGNAL("clicked()"), self.read_torrent)
+        self.connect(self.content.url.saveButton, SIGNAL("clicked()"), self.save_torrent)
 
     def set_torrent(self, torrent):
         self.content = Content(self)
         self.content.set_torrent(torrent)
         
-        # настройка сигналов
-        self.connect(self.content.url.readButton, SIGNAL("clicked()"), self.read_torrent)
-        self.connect(self.content.url.saveButton, SIGNAL("clicked()"), self.save_torrent)
 
     def read_torrent(self):
+        print "читаем новый торрент"
         if self.content.url.edit.text():
             url = self.content.url.edit.text()
             # прочитаем новое содержимое
             self.content.update(unicode(url))
             self.content.url.saveButton.setEnabled(True)
+        else:
+            print "не могу определить url"
 
     def save_torrent(self):
         print "save torrent"
