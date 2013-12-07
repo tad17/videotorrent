@@ -36,10 +36,6 @@ class Torrent():
     ''' основная работа с торрентом'''
 
     def __init__(self):
-        #proxy = {'http': 'http://127.0.0.1:5865'}
-        #url = "http://rutor.org/torrent/311342/seksualnye-hroniki-francuzskoj-semi_chroniques-sexuelles-dune-famille-daujourdhui-2012-bdrip-1080p-uncut"
-        #page = urllib.urlopen(url, proxies=proxy).read().decode('utf-8')
-
         self.info = {
             'id': "",
             'url': "",
@@ -72,8 +68,8 @@ class Torrent():
             'translation': [u'Перевод'],
             'subtitle': [u'Субтитры'],
             'director': [u'Режиссер'],
-            'roles': [u'В ролях'],
-            'description': [u'Описание', u'О фильме'],
+            'roles': [u'В ролях', u'Актеры'],
+            'description': [u'Описание', u'О фильме', u'Описание фильма'],
             'studio': [u'Выпущено'],
             'quantity': [u'Качество видео', u'Качество'],
             'video': [u'Формат видео', u'Формат', u'Видео', u'Кодек'],
@@ -97,6 +93,7 @@ class Torrent():
         if not query.exec_(sql):
             print query.lastError().text()
             sys.exit(1)
+        
 
     def get_source(self, url):
         # ========== получение данных =================
@@ -111,6 +108,7 @@ class Torrent():
         self.get_torrent()
         self.get_detail()
         self.get_img()
+        self.info["url"] = url
 
     def get_title(self):
         #================== определение названия =================
@@ -168,8 +166,8 @@ class Torrent():
         if img:
             filename, headers = urllib.urlretrieve(img)
             shutil.copy(filename, './images')
-            #self.info['img'] = os.path.basename(filename)
-            self.info['img'] = "tmp79QsXW.jpg"
+            self.info['img'] = os.path.basename(filename)
+            #self.info['img'] = "tmp79QsXW.jpg"
 
     def get_sql_insert(self):
         #=========== печатаем, что получилось ============================

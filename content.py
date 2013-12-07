@@ -29,6 +29,7 @@ class Item(QWidget):
     def __init__(self, parent, label, value=None):
         QWidget.__init__(self, parent)
         self.lb = QLabel(label)
+        self.lb.setTextFormat(Qt.RichText)
         self.ed = QLineEdit(value)
 
     def add(self, grid, nom):
@@ -61,9 +62,11 @@ class URL(QHBoxLayout):
 class Content(QWidget):
     '''Детальная информация по фильму'''
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, db=None):
         QWidget.__init__(self, parent)
+        print "read from db"
 
+        self.db = db
         info = Info()
         self.Title = info.label("title")
         self.Original = info.label("original")
@@ -131,22 +134,18 @@ class Content(QWidget):
 
         self.setLayout(layout)
 
-    def setDB(self, db):
-        self.db = db
+    def read_from_db(self):
 
         query = QSqlQuery()
         sql = '''
-        SELECT
+        SELECT 
             id, title, original ,country, genre,
             year, duration, translation, director,
             subtitle, roles, description, studio,
             quantity, video, audio, img
-        FROM video
+        FROM video ORDER BY id DESC
         '''
         query.exec_(sql)
-        query.next()
-        #query.next()
-        #query.next()
         if query.next():
             id = query.value(0).toInt()[0]
             title = unicode(query.value(1).toString())
@@ -183,26 +182,31 @@ class Content(QWidget):
             self.iAudio.setText(audio)
 
             self.Image = QImage("images/%s" % img)
+            self.img_txt = img
             width = 400
             height = 600
             self.Image.scaled(width, height, Qt.KeepAspectRatio)
             self.imageLabel.setPixmap(QPixmap.fromImage(self.Image))
+        else:
+            print "не удалось прочитать последние данные из БД"
 
     def save_db(self):
-        "пока картинки не сохраняются ((("
+        "сохранение текущего торрента в БД"
         query = QSqlQuery()
         query.prepare("INSERT INTO video"
                       "(title, original, img, torrent, country, genre, year, duration, "
                       "translation, subtitle, director, roles, description, studio, "
-                      "quantity, video, audio) "
+                      "quantity, video, audio, url) "
                       "VALUES"
                       "(:title, :original, :img, :torrent, :country, :genre, :year, :duration, "
                       ":translation, :subtitle, :director, :roles, :description, :studio, "
-                      ":quantity, :video, :audio) ")
-        query.bindValue(":title", QVariant(QString(u"пока не сделано")))
-        query.bindValue(":original", QVariant(QString(u"пока не сделано")))
-        query.bindValue(":img", QVariant(QString(u"пока не сделано")))
-        query.bindValue(":torrent", QVariant(QString(u"пока не сделано")))
+                      ":quantity, :video, :audio, :url) ")
+        # для наименования фильма использую форматирование, (<b>title</b>)
+        # поэтому предварительно нужно его удалить
+        query.bindValue(":title", QVariant(QString(self.Title.text()[3:-4])))
+        query.bindValue(":original", QVariant(QString(self.Original.text())))
+        query.bindValue(":img", QVariant(QString(self.img_txt)))
+        query.bindValue(":torrent", QVariant(QString(self.torrent)))
         query.bindValue(":contry", QVariant(self.iCountry.ed.text()))
         query.bindValue(":genre", QVariant(self.iGenre.ed.text()))
         query.bindValue(":year", QVariant(self.iYear.ed.text()))
@@ -211,12 +215,17 @@ class Content(QWidget):
         query.bindValue(":subtitle", QVariant(self.iSubtitle.ed.text()))
         query.bindValue(":director", QVariant(self.iDirector.ed.text()))
         query.bindValue(":roles", QVariant(self.iRoles.ed.text()))
-        query.bindValue(":description", QVariant(self.iDirector.ed.text()))
+        query.bindValue(":description", QVariant(self.Description.toPlainText()))
         query.bindValue(":studio", QVariant(self.iStudio.ed.text()))
         query.bindValue(":quantity", QVariant(self.iQuantity.ed.text()))
         query.bindValue(":video", QVariant(self.iVideo.ed.text()))
         query.bindValue(":audio", QVariant(self.iAudio.ed.text()))
-        query.exec_()
+        query.bindValue(":url", QVariant(self.url_txt))
+        
+        if not query.exec_():
+            print query.lastError().text()
+        else:
+            print "torrent сохранен в БД"
 
 
     def clear(self):
@@ -235,6 +244,9 @@ class Content(QWidget):
         self.iQuantity.clear()
         self.iVideo.clear()
         self.iAudio.clear()
+        self.img_txt = ''
+        self.torrent = ''
+        self.url_txt = ''
 
     def set_torrent(self, torrent):
         self.Title.setText("<b>%s</b>" % QString(torrent["title"]))
@@ -253,12 +265,16 @@ class Content(QWidget):
         self.iVideo.setText(torrent["video"])
         self.iAudio.setText(torrent["audio"])
 
-        self.Image = QImage("./images/%s" % torrent["img"])
+        self.Image = QImage("images/%s" % torrent["img"])
+        self.img_txt = torrent["img"]
         width = 800
         height = 600
         self.Image.scaled(width, height, Qt.KeepAspectRatio)
         self.imageLabel.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)
         self.imageLabel.setPixmap(QPixmap.fromImage(self.Image))
+        
+        self.torrent = torrent["torrent"]
+        self.url_txt = torrent["url"]
 
     def update(self, url):
         # сначала очистим содержимое

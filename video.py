@@ -22,21 +22,23 @@ class MainWindow(QMainWindow):
 
     def setup(self):
         # работа с БД
-        #db = QSqlDatabase.addDatabase("QSQLITE")
-        #db.setDatabaseName("video.db")
-        #if not db.open():
-            #QMessageBox.warning(None, u"Видео",
-                                #QString(u"Ошибка базы данных: %1").arg(db.lastError().text()))
-            #sys.exit(1)
+        db = QSqlDatabase.addDatabase("QSQLITE")
+        db.setDatabaseName("video.db")
+        if not db.open():
+            QMessageBox.warning(None, u"Видео torrent",
+                                QString(u"Ошибка базы данных: %1").arg(db.lastError().text()))
+            sys.exit(1)
 
         # создание основного содержимого
-        #self.content = Content(self)
-        #self.content.setDB(db)
+        self.content = Content(self, db)
+        self.content.read_from_db()
         self.setCentralWidget(self.content)
 
     def set_torrent(self, torrent):
         self.content = Content(self)
         self.content.set_torrent(torrent)
+        
+        # настройка сигналов
         self.connect(self.content.url.readButton, SIGNAL("clicked()"), self.read_torrent)
         self.connect(self.content.url.saveButton, SIGNAL("clicked()"), self.save_torrent)
 
@@ -62,7 +64,7 @@ def main():
     app = QApplication(sys.argv)
     app.setApplicationName("Video torrent")
     torrent = Torrent()
-    torrent.get_source(url)
+    #torrent.get_source(url)
 
     #print torrent.get_sql_insert()
 
