@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
 
+import ftplib
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.QtSql import *
@@ -227,7 +228,16 @@ class Content(QWidget):
         else:
             print "torrent сохранен в БД"
 
-
+    #----------------------------------------------------------------------
+    def  write_torrent(self):
+        """записывает торрент на закачку"""
+        ftp = ftplib.FTP("192.168.1.40")
+        ftp.connect("itman", "X753951x")
+        torrent_file = open("torrent/%s" % self.torrent, "rb")
+        ftp.storbinary("STOR /mnt/torrent/watch/[rutor.org]%s.torrent" % self.torrent, torrent_file)
+        torrent_file.close()
+        ftp.close()
+        
     def clear(self):
         self.Title.clear()
         self.Original.clear()

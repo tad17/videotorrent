@@ -52,6 +52,7 @@ class MainWindow(QMainWindow):
     def save_torrent(self):
         print "save torrent"
         self.content.save_db()
+        self.content.write_torrent()
 
 
 def main():
