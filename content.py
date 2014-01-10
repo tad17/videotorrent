@@ -234,8 +234,9 @@ class Content(QWidget):
         torrent_file = open("torrent/%s" % self.torrent, "rb")
         print "записываю торрент-файл %s" % self.torrent
         ftp = ftplib.FTP("192.168.1.40")
-        ftp.login("itman", "X753951x")
-        ftp.storbinary("STOR /mnt/torrent/watch/[rutor.org]%s.torrent" % self.torrent, torrent_file)
+        #ftp.login("itman", "X753951x")
+        ftp.login()
+        code = ftp.storbinary("STOR /torrent/watch/[rutor.org]%s.torrent" % self.torrent, torrent_file)
         torrent_file.close()
         ftp.close()
         
